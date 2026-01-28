@@ -1,0 +1,38 @@
+[package]
+name = "meshoptimizer-sys"
+version = "0.1.0"
+edition = "2024"
+
+exclude = [
+    "vendor/meshoptimizer",
+    "!vendor/meshoptimizer/LICENSE.md",
+    "!vendor/meshoptimizer/CMakeLists.txt",
+    "!vendor/meshoptimizer/src/**/*.h",
+    "!vendor/meshoptimizer/src/**/*.cpp",
+]
+
+links = "meshoptimizer"
+
+[lib]
+doctest = false
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = 3
+
+[features]
+default = []
+lto = []
+
+[build-dependencies]
+bindgen = "0.72"
+bindgen_helpers = "0.5"
+cmake = "0.1"
+
+[dev-dependencies]
+assert2 = "0.3"
+proptest = "1.9"
+
+[hints]
+mostly-unused = true
