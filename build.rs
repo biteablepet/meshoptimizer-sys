@@ -3,36 +3,52 @@ use std::{
     path::PathBuf,
 };
 
+const MESHOPTIMIZER_SOURCE: &[&str] = &[
+    "vendor/meshoptimizer/src/allocator.cpp",
+    "vendor/meshoptimizer/src/clusterizer.cpp",
+    "vendor/meshoptimizer/src/indexanalyzer.cpp",
+    "vendor/meshoptimizer/src/indexcodec.cpp",
+    "vendor/meshoptimizer/src/indexgenerator.cpp",
+    "vendor/meshoptimizer/src/meshletcodec.cpp",
+    "vendor/meshoptimizer/src/overdrawoptimizer.cpp",
+    "vendor/meshoptimizer/src/partition.cpp",
+    "vendor/meshoptimizer/src/quantization.cpp",
+    "vendor/meshoptimizer/src/rasterizer.cpp",
+    "vendor/meshoptimizer/src/simplifier.cpp",
+    "vendor/meshoptimizer/src/spatialorder.cpp",
+    "vendor/meshoptimizer/src/stripifier.cpp",
+    "vendor/meshoptimizer/src/vcacheoptimizer.cpp",
+    "vendor/meshoptimizer/src/vertexcodec.cpp",
+    "vendor/meshoptimizer/src/vertexfilter.cpp",
+    "vendor/meshoptimizer/src/vfetchoptimizer.cpp",
+];
+
 fn main() {
-    let mut meshoptimizer_cmake = cmake::Config::new(
-        PathBuf::from(
-            env::var("CARGO_MANIFEST_DIR")
-                .expect("CARGO_MANIFEST_DIR should be set while building"),
-        )
-        .join("vendor/meshoptimizer"),
-    );
-    meshoptimizer_cmake.cxxflag("-fkeep-inline-functions");
+    let mut build = cc::Build::new();
+    build.files(MESHOPTIMIZER_SOURCE);
 
     if cfg!(feature = "lto") {
-        // LTO feature requires Clang
-        // FIXME: check cmake's cc somehow to see what compiler will be used
-        meshoptimizer_cmake.cxxflag("-flto");
+        if build.get_compiler().is_like_clang() {
+            build.flag("-flto");
+        } else {
+            panic!("LTO feature requires Clang");
+        }
     }
 
-    let meshoptimizer_build_dest = meshoptimizer_cmake.build().join("lib");
-
-    println!(
-        "cargo:rustc-link-search=native={}",
-        meshoptimizer_build_dest.display()
-    );
-    println!("cargo:rustc-link-lib=static=meshoptimizer");
-
-    let target = env::var("TARGET").expect("TARGET should be set while building");
-    if target.contains("apple") {
-        println!("cargo:rustc-link-lib=dylib=c++");
-    } else if !target.contains("windows") {
-        println!("cargo:rustc-link-lib=dylib=stdc++");
+    let is_debug = match env::var("DEBUG") {
+        Ok(s) => match &*s.to_ascii_lowercase() {
+            "true" | "0" => true,
+            "false" | "1" => false,
+            _ => panic!("Unknown value for DEBUG env var"),
+        },
+        Err(_) => false
+    };
+    if !is_debug {
+        build.define("NDEBUG", None);
     }
+
+    build.cpp(true);
+    build.compile("meshoptimizer");
 
     bindgen::Builder::default()
         .header("wrapper.hpp")

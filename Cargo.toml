@@ -31,7 +31,7 @@ lto = []
 [build-dependencies]
 bindgen = "0.72"
 bindgen_helpers = "0.5"
-cmake = "0.1"
+cc = "1.2.55"
 
 [dev-dependencies]
 assert2 = "0.3"
