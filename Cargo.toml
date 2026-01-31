@@ -3,7 +3,7 @@ name = "meshoptimizer-sys"
 repository = "https://github.com/biteablepet/meshoptimizer-sys"
 description = "Low-level bindings for the meshoptimizer library"
 license = "MIT"
-version = "1.0.1+meshoptimizer-1.0.0"
+version = "1.0.2+meshoptimizer-1.0.0"
 edition = "2024"
 
 exclude = [
