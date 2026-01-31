@@ -27,6 +27,13 @@ fn main() {
     );
     println!("cargo:rustc-link-lib=static=meshoptimizer");
 
+    let target = env::var("TARGET").expect("TARGET should be set while building");
+    if target.contains("apple") {
+        println!("cargo:rustc-link-lib=dylib=c++");
+    } else if !target.contains("windows") {
+        println!("cargo:rustc-link-lib=dylib=stdc++");
+    }
+
     bindgen::Builder::default()
         .header("wrapper.hpp")
         // allowlist the exports we want

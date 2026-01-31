@@ -36,6 +36,7 @@ cmake = "0.1"
 [dev-dependencies]
 assert2 = "0.3"
 proptest = "1.9"
+trybuild = "1.0"
 
 [hints]
 mostly-unused = true

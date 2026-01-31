@@ -49,3 +49,9 @@ proptest! {
         assert!(indices == decoded);
     }
 }
+
+#[test]
+fn external_crates_can_use_functions() {
+    let t = trybuild::TestCases::new();
+    t.pass("tests/compile-pass/*.rs");
+}
